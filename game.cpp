@@ -14,16 +14,17 @@ int welcome_message() { // wecome message for game
     return size;
 }
 
-bool Game::is_game_over() const { // checks game state by checking win conditions
+bool is_game_over(Game& g) { // checks game state by checking win conditions
+    Board b = g.get_board(); // default copy constructor is okay, because no pointers
     if (left_diagonal(b) || right_diagonal(b) || horizontal(b) || vertical(b)) return 1;
     return false;
 }
 
-Pos prompt_move(const Game& g) { // prompts user to enter a position, returns valid position
+Pos prompt_move(Game& g) { // prompts user to enter a position, returns valid position
     int valid_pos = 0;
     Pos p;
     while (!valid_pos) {
-        cout << "Player " << g.player << ", please enter your move: ";
+        cout << "Player " << g.get_player() << ", please enter your move: ";
         int row, col;
         string input;
         getline(cin, input); // using getline instead of cin to deal with excess numbers provided
@@ -38,12 +39,12 @@ Pos prompt_move(const Game& g) { // prompts user to enter a position, returns va
             }
         }
         try{
-            p = Pos(row, col, g.b.get_size()); // see if input corresponds to valid position
+            p = Pos(row, col, g.get_board().get_size()); // see if input corresponds to valid position
         } catch (Pos::Exception) { // position is out of bounds
             cout << "This is an invalid position. Please try again." << endl;
             continue;
         }
-        if (g.b.get_entry(p) != ' ') {
+        if (g.get_board().get_entry(p) != ' ') {
             cout << "This position has already been filled. Please try again." << endl;
             cin.clear();
             continue;
@@ -54,24 +55,32 @@ Pos prompt_move(const Game& g) { // prompts user to enter a position, returns va
     return p;
 }
 
-void Game::place_move(const Pos& pos) { // assumes position is valid
-    if (player == 1) {
-        b.set_entry(pos, 'X');
+// void Game::place_move(const Pos& pos) { // assumes position is valid
+//     if (player == 1) {
+//         b.set_entry(pos, 'X');
+//     } else {
+//         b.set_entry(pos, '0');
+//     }
+// }
+
+void place_move(Game& g, const Pos& pos) { // assumes position is valid
+    if (g.get_player() == 1) {
+        g.get_board().set_entry(pos, 'X');
     } else {
-        b.set_entry(pos, '0');
+        g.get_board().set_entry(pos, '0');
     }
 }
 
-void Game::next_player() { // update player to next
-    if (player == 1) {
-        player++;
+void next_player(Game& g) { // update player to next
+    int curr = g.get_player();
+    if (curr == 1) {
+        g.set_player(++curr);
     } else { // player 2
-        player--;
-    }
+        g.set_player(--curr);    }
 }
 
 void game_over_message(Game& g) { // message when game is over
-    g.next_player();
+    next_player(g);
     cout << "Player " << g.get_player() << " wins!" << endl;
     cout << "Thanks for playing!" << endl;
 }
@@ -80,10 +89,11 @@ void create_game() { // creates a game and runs it until it's over
     int size = welcome_message();
     Game g = Game(size);
     cout << g.get_board();
-    while (!(g.is_game_over())) {
-        g.place_move(prompt_move(g));
+    while (!(is_game_over(g))) {
+        //g.place_move(prompt_move(g));
+        place_move(g, prompt_move(g));
         cout << g.get_board();
-        g.next_player();
+        next_player(g);
     }
     game_over_message(g);
 }

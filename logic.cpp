@@ -4,7 +4,9 @@ bool left_diagonal(const Board& b) { // check left diagonal win condition
     char start = b.get_entry(Pos(0, 0, b.get_size()));
     for (int i = 1; i < b.get_size(); i++) { 
         char cell = b.get_entry(Pos(i, i, b.get_size())); 
-        if (cell == ' ' || cell != start) return false;
+        if (cell == ' ' || cell != start) {
+            return false;
+        }
     }
     return true; // all elements are the same
 }
@@ -41,7 +43,7 @@ bool vertical(const Board& b) { // check vertical win condition
         col_success = 1;
         char start = b.get_entry(Pos{0, i, b.get_size()});
         for (int j = 1; j < b.get_size(); j++) { // check within each col
-            char cell = b.get_entry(Pos(j, i, b.get_size())) != start;
+            char cell = b.get_entry(Pos(j, i, b.get_size()));
             if (cell == ' ' || cell != start) {
                 col_success = 0; // column failed
                 break;

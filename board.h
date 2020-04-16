@@ -17,7 +17,6 @@ public:
     int get_size() const {return size;}
     char get_entry(const Pos& p) const {return b[p.x][p.y];}
 
-
     void set_entry(const Pos& p, char c) {b[p.x][p.y] = c;}
     friend std::ostream& operator<<(std::ostream& os, const Board& b);
 };
