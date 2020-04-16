@@ -18,10 +18,6 @@ public:
     
     // functions that change the state of the game
     void set_player(int p) {player = p;}
-
-
-
-    //void place_move(const Pos& pos);
 };
 
 

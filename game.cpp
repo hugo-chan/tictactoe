@@ -55,14 +55,6 @@ Pos prompt_move(Game& g) { // prompts user to enter a position, returns valid po
     return p;
 }
 
-// void Game::place_move(const Pos& pos) { // assumes position is valid
-//     if (player == 1) {
-//         b.set_entry(pos, 'X');
-//     } else {
-//         b.set_entry(pos, '0');
-//     }
-// }
-
 void place_move(Game& g, const Pos& pos) { // assumes position is valid
     if (g.get_player() == 1) {
         g.get_board().set_entry(pos, 'X');
