@@ -53,3 +53,7 @@ bool vertical(const Board& b) { // check vertical win condition
     }
     return false; // all cols had col_success = 0, so fail
 }
+
+bool draw(const Board& b) {
+    
+}

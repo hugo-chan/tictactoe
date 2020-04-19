@@ -11,13 +11,15 @@ int welcome_message() { // wecome message for game
         cout << "Invalid input. Please try again." << endl;
         cout << "What board size would you like to play: ";
     }
+    cin.ignore(); // clear newline
     return size;
 }
 
-bool is_game_over(Game& g) { // checks game state by checking win conditions
+int is_game_over(Game& g, int num_turns) { // checks game state by checking win conditions
     Board b = g.get_board(); // default copy constructor is okay, because no pointers
-    if (left_diagonal(b) || right_diagonal(b) || horizontal(b) || vertical(b)) return 1;
-    return false;
+    if (left_diagonal(b) || right_diagonal(b) || horizontal(b) || vertical(b)) return 1; // win
+    if (num_turns == (g.get_board().get_size()) * (g.get_board().get_size())) return 0; // draw
+    return -1; // not over
 }
 
 Pos prompt_move(Game& g) { // prompts user to enter a position, returns valid position
@@ -26,18 +28,20 @@ Pos prompt_move(Game& g) { // prompts user to enter a position, returns valid po
     while (!valid_pos) {
         cout << "Player " << g.get_player() << ", please enter your move: ";
         int row, col;
-        string input;
-        getline(cin, input); // using getline instead of cin to deal with excess numbers provided
-        istringstream is {input};
-        if (!(is >> row >> col)) {
-            if (is.bad()) {
+        if (!(cin >> row >> col)) {
+            if (cin.bad()) {
                 error("prompt_move: bad input stream.");
             }
-            if (is.fail()) {
-                cout << "Please enter two integers separated by a space." << endl;
+            if (cin.fail()) {
+                if (cin.eof()) { // ctrl+Z
+                    cin.clear(); // clear eofbit in stream
+                } else {
+                    cout << "Please enter two integers separated by a space." << endl;
+                }
                 continue;
             }
         }
+        cin.ignore(256, '\n'); // ignore any excess characters, ignore consumes '\n'
         try{
             p = Pos(row, col, g.get_board().get_size()); // see if input corresponds to valid position
         } catch (Pos::Exception) { // position is out of bounds
@@ -71,9 +75,13 @@ void next_player(Game& g) { // update player to next
         g.set_player(--curr);    }
 }
 
-void game_over_message(Game& g) { // message when game is over
+void game_over_message(Game& g, int game_state) { // message when game is over
+    if (game_state == 0) {
+        cout << "Draw!" << endl;
+    } else {
     next_player(g);
     cout << "Player " << g.get_player() << " wins!" << endl;
+    }
     cout << "Thanks for playing!" << endl;
 }
 
@@ -81,13 +89,15 @@ void create_game() { // creates a game and runs it until it's over
     int size = welcome_message();
     Game g = Game(size);
     cout << g.get_board();
-    while (!(is_game_over(g))) {
-        //g.place_move(prompt_move(g));
+    int num_turns = 0; // a more efficient way to determine draw
+    int game_state;
+    while (game_state = is_game_over(g, num_turns), game_state == -1) {
         place_move(g, prompt_move(g));
+        num_turns++;
         cout << g.get_board();
         next_player(g);
     }
-    game_over_message(g);
+    game_over_message(g, game_state);
 }
 
 int main() {
